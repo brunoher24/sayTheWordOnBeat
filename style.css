@@ -30,7 +30,7 @@ button {
 }
 
 .images img.active {
-    transition: border 1000ms ease-in-out;
+    transition: border 100ms ease-in-out;
     border: 8px solid green;
 }
 

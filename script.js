@@ -7,10 +7,10 @@ const nextImgIsActiveBtn = document.querySelector("#next-img-is-active-btn");
 // de la page qui correspond au sélecteur css fourni en paramètre
 let activeImgIndex = -1;
 // dans un tableau l'index du premier élément est 0
+// console.log(imagesList[1]); // deuxième élément de la liste d'images (son index est 1).
 
-console.log(imagesList[1]); // deuxième élément de la liste d'images (son index est 1).
 
-nextImgIsActiveBtn.onclick = function() {
+function selectNextImgInList() {
     if(activeImgIndex > -1) { // si c'est la première fois qu'on clique sur le bouton, il n'y a pas d'image précédente dans la liste
         imagesList[activeImgIndex].className = ""; // on retire la class "active" de l'image précédente 
     }
@@ -19,9 +19,13 @@ nextImgIsActiveBtn.onclick = function() {
     } else {
         activeImgIndex = activeImgIndex + 1; // sinon, on ajoute +1 a la valeur de l'index de l'image qu'on veut rendre active
     }
-
     imagesList[activeImgIndex].className = "active"; // on ajoute la class "active" à l'image suivante dans la liste
-
 }
+
+// nextImgIsActiveBtn.onclick = selectNextImgInList;
 // on rattache un évènement "click" au bouton de la page
-// en d'autres termes, chaque fois que ce bouton est cliqué, le code de la fonction ci-dessus s'éxécute
+// en d'autres termes, chaque fois que ce bouton est cliqué, le code de la fonction nommée "selectNextImgInList" s'éxécute
+
+const interval = setInterval(function() {
+    selectNextImgInList(); // le code de la fonction selectNextImgInList est éxécuté toutes les 400 millisecondes (0.4secondes) 
+}, 400);
