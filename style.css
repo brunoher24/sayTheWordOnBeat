@@ -7,6 +7,8 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
+    font-family: 'monospace', sans-serif;
 }
 
 button {
@@ -23,7 +25,6 @@ button {
     width : 140px;
     height: 140px;
     object-fit: contain;
-    object-position: top;
     border: 4px solid;
     margin: 8px;
     box-sizing: border-box;
@@ -57,4 +58,11 @@ button {
 #exclamation-mark-icon {
     bottom: 24px;
     left: 24px;
+}
+
+#play-btn {
+    background: transparent;
+    border: 4px solid;
+    font-size: 20px;
+    width: 300px;
 }

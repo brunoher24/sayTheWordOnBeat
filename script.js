@@ -1,10 +1,19 @@
+const imagePaths = ["belier", "dembele", "tele", "ukulele"];
 const imagesList = document.querySelectorAll(".images img"); 
 // querySelectorAll récupère TOUS les éléments de la page qui correspondent au sélecteur css fourni en paramètre
 // ici : toutes les balises <img/> situées dans la div qui a pour classe "images" 
 // querySelector fait pareil que querySelectorAll sauf que ça ne récupère que le PREMIER élément
 // de la page qui correspond au sélecteur css fourni en paramètre
 
-function animate8images() {
+function createRandomImagesList() {
+    imagesList.forEach(img => {
+        const randomIndex = Math.floor(Math.random() * imagePaths.length); // formule pour obtenir un nombre aléatoire entre 0 et la longueur du tableau "imagesPath"
+        const randomImageName = imagePaths[randomIndex]; // un nom d'image aléatoire dans ce même tableau
+        img.src = "./images/level_1/" + randomImageName + ".webp"; // par exemple : "./images/level_1/belier.webp"
+    });
+}
+
+function animate8images(generateNewRandomList) {
     let activeImgIndex = -1; // on initialise l'index de l'image à animer
     const interval = setInterval(function() {  // le code à l'intérieur de ce bloc s'éxécute toutes les 0.32 secondes          
         const previousImage = imagesList[activeImgIndex]; // on définit l'image dont on veut supprimer la classe "active"
@@ -16,6 +25,9 @@ function animate8images() {
             imagesList[activeImgIndex].className = "active"; // on active donc cette image
         } else {  // si les 8 images ont déjà été activiée l'une après l'autre
             previousImage.className = ""; // on désactive la dernière image de la liste qui avait été avctivée dans l'interval précédent
+            if(generateNewRandomList) { // arrivé à la fin du niveau, si ce n'est pas le dernier niveau...
+                createRandomImagesList(); // ...on génère unenouvelle liste d'images aléatoires pour le prochain niveau
+            }
             clearInterval(interval); // "clearInterval" permet de terminer l'éxécution du code par interval (sinon il s'éxécute à l'infini) 
         }
     }, 320);
@@ -36,7 +48,9 @@ playBtn.onclick = function() {
     let currentLevel = 0; // on initialise le niveau actuel à 0 (il y a 5 niveaux successifs)
     const interval = setInterval(function() { // les 8 images seront animées tour à tour toutes les 5250 millièmes de secondes
         currentLevel++; // à actualise le niveau (de 1 à 5)
-        animate8images(); // on exécute le bloc de code qui anime les 8 imaes que l'on a encapsulé dans une fonction définie plus haut
+        const shouldGenerateNewRandomImagesListForNextLevel = currentLevel < 5; // ce paramètre a un nom très long qui peut servir de commentaire !
+        animate8images(shouldGenerateNewRandomImagesListForNextLevel); 
+        // on exécute le bloc de code qui anime les 8 imaes que l'on a encapsulé dans une fonction définie plus haut
         if(currentLevel >= 5) { // si le dernier niveau a été joué
             clearInterval(interval);// alors on fait cesser l'éxécution de ce bloc d'instructions par intervals.
         }
