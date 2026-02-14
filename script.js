@@ -1,8 +1,10 @@
-const imagePaths = ["belier", "dembele", "tele", "ukulele"];
+const imagePaths = ["belier", "dembele", "tele", "ukulele", "ble"];
 const imageCtnrs = document.querySelectorAll(".images-row > div");
 let imagesList = []; 
 const levelSection = document.querySelector("#level-section");
 let levelNbr;
+let imagesAnimationInterval;
+let levelsInterval;
 // querySelectorAll récupère TOUS les éléments de la page qui correspondent au sélecteur css fourni en paramètre
 // ici : toutes les balises <img/> situées dans la div qui a pour classe "images" 
 // querySelector fait pareil que querySelectorAll sauf que ça ne récupère que le PREMIER élément
@@ -22,7 +24,7 @@ function initLevelTopCountDisplay() {
     levelNbr = document.querySelector("#level-nbr");
 }
 
-function initImagesAnimationForLevel1() {
+function initImagesAnimationForLevel() {
     imageCtnrs.forEach((div, index) => {
         setTimeout(function() {
             const img = document.createElement("img");
@@ -34,6 +36,14 @@ function initImagesAnimationForLevel1() {
     });
 }
 
+function resetDisplay() {
+    imageCtnrs.forEach((div, index) => {
+        div.innerHTML = "";
+    });
+    imagesList.splice(0, 8);
+    levelSection.innerHTML = "";
+}
+
 function createRandomImagesList() {
     imagesList.forEach(img => {
         setRandomImagePath(img);
@@ -42,7 +52,7 @@ function createRandomImagesList() {
 
 function animate8images(generateNewRandomList, nextLevel) {
     let activeImgIndex = -1; // on initialise l'index de l'image à animer
-    const interval = setInterval(function() {  // le code à l'intérieur de ce bloc s'éxécute toutes les 0.32 secondes          
+    imagesAnimationInterval = setInterval(function() {  // le code à l'intérieur de ce bloc s'éxécute toutes les 0.32 secondes          
         const previousImage = imagesList[activeImgIndex]; // on définit l'image dont on veut supprimer la classe "active"
         if(activeImgIndex < 7) { // tant que ça fait moins de 8 fois, on "active" chaque image une par une
             if(previousImage) {
@@ -56,9 +66,41 @@ function animate8images(generateNewRandomList, nextLevel) {
                 createRandomImagesList(); // ...on génère unenouvelle liste d'images aléatoires pour le prochain niveau
                 levelNbr.innerText = nextLevel; // on update également le numéro du prochain niveau
             }
-            clearInterval(interval); // "clearInterval" permet de terminer l'éxécution du code par interval (sinon il s'éxécute à l'infini) 
+            if(nextLevel > 5) { // si le dernier niveau a été joué
+                stopGame();// alors on fait cesser l'éxécution de ce bloc d'instructions par intervals.
+            } else {
+                clearInterval(imagesAnimationInterval);
+            }
         }
     }, 320);
+}
+
+function newGame() {
+    createRandomImagesList(); // ...on génère une nouvelle liste d'images aléatoires pour le prochain niveau
+    initLevelTopCountDisplay();
+    initImagesAnimationForLevel();
+
+    setTimeout(function() { // on ajoute un temps de latence de 150ms avant de lancer la musique
+        audioTrack.play();
+        // utilisation de la méthode "play" pour jouer le son dans la page
+    }, 150);
+
+    let currentLevel = 0; // on initialise le niveau actuel à 0 (il y a 5 niveaux successifs)
+    levelsInterval = setInterval(function() { // les 8 images seront animées tour à tour toutes les 5250 millièmes de secondes
+        currentLevel++; // à actualise le niveau (de 1 à 5)
+        const shouldGenerateNewRandomImagesListForNextLevel = currentLevel < 5; // ce paramètre a un nom très long qui peut servir de commentaire !
+        animate8images(shouldGenerateNewRandomImagesListForNextLevel, currentLevel+1); 
+        // on exécute le bloc de code qui anime les 8 images que l'on a encapsulé dans une fonction définie plus haut
+    }, 5250); // l'interval le plus précis entre les séquences d'animation semble être de 5 secondes 25 centièmes
+}
+
+function stopGame() {
+    audioTrack.pause();
+    audioTrack.currentTime = 0;
+    resetDisplay();
+    clearInterval(imagesAnimationInterval);
+    clearInterval(levelsInterval);
+    playBtn.innerText = "Nouvelle partie";
 }
 
 const audioTrack = new Audio('./audio/say_the_word_on_beat.mp3');
@@ -68,26 +110,13 @@ const playBtn = document.querySelector("#play-btn");
 // récupération du bouton pour démarrer la partie
 
 playBtn.onclick = function() {
+    if(playBtn.innerText === "Jouer" || playBtn.innerText === "Nouvelle partie") {
+        playBtn.innerText = "Arrêter";
+        newGame();
+    } else {
+        stopGame();
+    }
 
-    createRandomImagesList(); // ...on génère une nouvelle liste d'images aléatoires pour le prochain niveau
-    initLevelTopCountDisplay();
-    initImagesAnimationForLevel1();
-
-    setTimeout(function() { // on ajoute un temps de latence de 150ms avant de lancer la musique
-        audioTrack.play();
-        // utilisation de la méthode "play" pour jouer le son dans la page
-    }, 150);
-
-    let currentLevel = 0; // on initialise le niveau actuel à 0 (il y a 5 niveaux successifs)
-    const interval = setInterval(function() { // les 8 images seront animées tour à tour toutes les 5250 millièmes de secondes
-        currentLevel++; // à actualise le niveau (de 1 à 5)
-        const shouldGenerateNewRandomImagesListForNextLevel = currentLevel < 5; // ce paramètre a un nom très long qui peut servir de commentaire !
-        animate8images(shouldGenerateNewRandomImagesListForNextLevel, currentLevel+1); 
-        // on exécute le bloc de code qui anime les 8 imaes que l'on a encapsulé dans une fonction définie plus haut
-        if(currentLevel >= 5) { // si le dernier niveau a été joué
-            clearInterval(interval);// alors on fait cesser l'éxécution de ce bloc d'instructions par intervals.
-        }
-    }, 5250); // l'interval le plus précis entre les séquences d'animation semble être de 5 secondes 25 centièmes
 }
 // on rattache un évènement "click" au bouton "Jouer" de la page
 
