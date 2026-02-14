@@ -1,19 +1,30 @@
-const imagePaths = ["belier", "dembele", "tele", "ukulele", "ble"];
+const imagePaths = [
+    ["belier", "dembele", "tele", "ukulele", "ble"],
+    ["chat", "chien"]
+];
 const imageCtnrs = document.querySelectorAll(".images-row > div");
+// querySelectorAll récupère TOUS les éléments de la page qui correspondent au sélecteur css fourni en paramètre
+// ici : toutes les balises <img/> situées dans la div qui a pour classe "images" 
+// querySelector fait pareil que querySelectorAll sauf que ça ne récupère que le PREMIER élément
+// de la page qui correspond au sélecteur css fourni en paramètre
 let imagesList = []; 
 const levelSection = document.querySelector("#level-section");
 let levelNbr;
 let imagesAnimationInterval;
 let levelsInterval;
-// querySelectorAll récupère TOUS les éléments de la page qui correspondent au sélecteur css fourni en paramètre
-// ici : toutes les balises <img/> situées dans la div qui a pour classe "images" 
-// querySelector fait pareil que querySelectorAll sauf que ça ne récupère que le PREMIER élément
-// de la page qui correspond au sélecteur css fourni en paramètre
+let selectedVersion = 1;
+
+const gameSelect = document.querySelector("#game-select");
+gameSelect.onchange = function() {
+    selectedVersion = parseInt(gameSelect.value);
+}
+
 
 function setRandomImagePath(img) {
-    const randomIndex = Math.floor(Math.random() * imagePaths.length); // formule pour obtenir un nombre aléatoire entre 0 et la longueur du tableau "imagesPath"
-    const randomImageName = imagePaths[randomIndex]; // un nom d'image aléatoire dans ce même tableau
-    img.src = "./images/level_1/" + randomImageName + ".webp"; // par exemple : "./images/level_1/belier.webp"
+    const selectedImagePaths = imagePaths[selectedVersion-1];
+    const randomIndex = Math.floor(Math.random() * selectedImagePaths.length); // formule pour obtenir un nombre aléatoire entre 0 et la longueur du tableau "imagesPath"
+    const randomImageName = selectedImagePaths[randomIndex]; // un nom d'image aléatoire dans ce même tableau
+    img.src = "./images/level_" + selectedVersion + "/" + randomImageName + ".webp"; // par exemple : "./images/level_1/belier.webp"
     img.alt = randomImageName;
 }
 
