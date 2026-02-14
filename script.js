@@ -1,19 +1,46 @@
 const imagePaths = ["belier", "dembele", "tele", "ukulele"];
-const imagesList = document.querySelectorAll(".images img"); 
+const imageCtnrs = document.querySelectorAll(".images-row > div");
+let imagesList = []; 
+const levelSection = document.querySelector("#level-section");
+let levelNbr;
 // querySelectorAll récupère TOUS les éléments de la page qui correspondent au sélecteur css fourni en paramètre
 // ici : toutes les balises <img/> situées dans la div qui a pour classe "images" 
 // querySelector fait pareil que querySelectorAll sauf que ça ne récupère que le PREMIER élément
 // de la page qui correspond au sélecteur css fourni en paramètre
 
-function createRandomImagesList() {
-    imagesList.forEach(img => {
-        const randomIndex = Math.floor(Math.random() * imagePaths.length); // formule pour obtenir un nombre aléatoire entre 0 et la longueur du tableau "imagesPath"
-        const randomImageName = imagePaths[randomIndex]; // un nom d'image aléatoire dans ce même tableau
-        img.src = "./images/level_1/" + randomImageName + ".webp"; // par exemple : "./images/level_1/belier.webp"
+function setRandomImagePath(img) {
+    const randomIndex = Math.floor(Math.random() * imagePaths.length); // formule pour obtenir un nombre aléatoire entre 0 et la longueur du tableau "imagesPath"
+    const randomImageName = imagePaths[randomIndex]; // un nom d'image aléatoire dans ce même tableau
+    img.src = "./images/level_1/" + randomImageName + ".webp"; // par exemple : "./images/level_1/belier.webp"
+    img.alt = randomImageName;
+}
+
+function initLevelTopCountDisplay() {
+    levelSection.innerHTML = `
+        <h2 class="animated-level-appearance"><span id="level-nbr">1</span> / 5</h2>
+    `;
+    levelNbr = document.querySelector("#level-nbr");
+}
+
+function initImagesAnimationForLevel1() {
+    imageCtnrs.forEach((div, index) => {
+        setTimeout(function() {
+            const img = document.createElement("img");
+            setRandomImagePath(img);
+            img.className = "animated-img-appearance";
+            div.appendChild(img);
+            imagesList.push(img);
+        },index*100);
     });
 }
 
-function animate8images(generateNewRandomList) {
+function createRandomImagesList() {
+    imagesList.forEach(img => {
+        setRandomImagePath(img);
+    });
+}
+
+function animate8images(generateNewRandomList, nextLevel) {
     let activeImgIndex = -1; // on initialise l'index de l'image à animer
     const interval = setInterval(function() {  // le code à l'intérieur de ce bloc s'éxécute toutes les 0.32 secondes          
         const previousImage = imagesList[activeImgIndex]; // on définit l'image dont on veut supprimer la classe "active"
@@ -27,6 +54,7 @@ function animate8images(generateNewRandomList) {
             previousImage.className = ""; // on désactive la dernière image de la liste qui avait été avctivée dans l'interval précédent
             if(generateNewRandomList) { // arrivé à la fin du niveau, si ce n'est pas le dernier niveau...
                 createRandomImagesList(); // ...on génère unenouvelle liste d'images aléatoires pour le prochain niveau
+                levelNbr.innerText = nextLevel; // on update également le numéro du prochain niveau
             }
             clearInterval(interval); // "clearInterval" permet de terminer l'éxécution du code par interval (sinon il s'éxécute à l'infini) 
         }
@@ -40,16 +68,21 @@ const playBtn = document.querySelector("#play-btn");
 // récupération du bouton pour démarrer la partie
 
 playBtn.onclick = function() {
-    setTimeout(function() { // on ajoute un temps de latence de 250ms avant de lancer la musique
+
+    createRandomImagesList(); // ...on génère une nouvelle liste d'images aléatoires pour le prochain niveau
+    initLevelTopCountDisplay();
+    initImagesAnimationForLevel1();
+
+    setTimeout(function() { // on ajoute un temps de latence de 150ms avant de lancer la musique
         audioTrack.play();
         // utilisation de la méthode "play" pour jouer le son dans la page
-    }, 250);
+    }, 150);
 
     let currentLevel = 0; // on initialise le niveau actuel à 0 (il y a 5 niveaux successifs)
     const interval = setInterval(function() { // les 8 images seront animées tour à tour toutes les 5250 millièmes de secondes
         currentLevel++; // à actualise le niveau (de 1 à 5)
         const shouldGenerateNewRandomImagesListForNextLevel = currentLevel < 5; // ce paramètre a un nom très long qui peut servir de commentaire !
-        animate8images(shouldGenerateNewRandomImagesListForNextLevel); 
+        animate8images(shouldGenerateNewRandomImagesListForNextLevel, currentLevel+1); 
         // on exécute le bloc de code qui anime les 8 imaes que l'on a encapsulé dans une fonction définie plus haut
         if(currentLevel >= 5) { // si le dernier niveau a été joué
             clearInterval(interval);// alors on fait cesser l'éxécution de ce bloc d'instructions par intervals.
